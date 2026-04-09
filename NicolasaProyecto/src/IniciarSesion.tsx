@@ -7,12 +7,16 @@ function App() {
     const [password,setPassword]=useState("")
     const submit=(e)=>{
       e.preventDefault()
-      if(username!==localStorage.key.name || password!=localStorage.key.name){
-          alert("Inicio de sesión exitoso")
-      }else{
-          alert("Inicio de sesión fallido")
-          setUsername("")
-          setPassword("")
+      localStorage.setItem("salvagd09","Cell28")
+      const recordPassword=localStorage.getItem("salvagd09")
+      if (username === "salvagd09" && password === recordPassword) {
+        alert("Inicio de sesión exitoso")
+        setUsername("")
+        setPassword("")
+      } else {
+        alert("Inicio de sesión fallido")
+        setUsername("")
+        setPassword("")
       }
     }
   return (
@@ -24,9 +28,9 @@ function App() {
         </div>
         <form onSubmit={submit} className="formulario">
             <label htmlFor="username" className="loginL">Username:</label>
-            <input type="text" id="username" onChange={(e)=>{setUsername(e.target.value)}} className="inputs"/>
+            <input type="text" id="username" value={username} onChange={(e)=>{setUsername(e.target.value)}} className="inputs"/>
             <label htmlFor="password" className="loginL">Contraseña:</label>
-            <input type="password" id="password" onChange={(e)=>{setPassword(e.target.value)}} className="inputs"/>
+            <input type="password" id="password" value={password} onChange={(e)=>{setPassword(e.target.value)}} className="inputs"/>
             <button type="submit">Ingresar</button>
         </form>
       </section>
