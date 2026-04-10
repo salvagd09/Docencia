@@ -1,43 +1,33 @@
 import React, { useState } from 'react';
 
-// Menú de ejemplo (normalmente vendría de una base de datos)
 const MENU = [
-  { id: 1, nombre: "Hamburguesa Clásica", precio: 8.50 },
-  { id: 2, nombre: "Pizza Margherita", precio: 12.00 },
-  { id: 3, nombre: "Ensalada César", precio: 6.00 },
-  { id: 4, nombre: "Pasta Carbonara", precio: 10.50 },
-  { id: 5, nombre: "Limonada 1L", precio: 3.00 }
+  { id: 1, nombre: "Hamburguesa Clásica", precio: 8.50, categoria: "Comida" },
+  { id: 2, nombre: "Pizza Margherita", precio: 12.00, categoria: "Comida" },
+  { id: 3, nombre: "Ensalada César", precio: 6.00, categoria: "Saludable" },
+  { id: 4, nombre: "Pasta Carbonara", precio: 10.50, categoria: "Comida" },
+  { id: 5, nombre: "Limonada 1L", precio: 3.00, categoria: "Bebida" }
 ];
 
-const MESAS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Mesas disponibles
-const MESEROS = ["Carlos", "Ana", "Pedro", "María"]; // Meseros disponibles
+const MESAS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const MESEROS = ["Carlos", "Ana", "Pedro", "María"];
 
 export default function PedidoMesero() {
-  // Estados del formulario
   const [mesero, setMesero] = useState("");
   const [mesa, setMesa] = useState("");
   const [plato, setPlato] = useState("");
   const [notas, setNotas] = useState("");
-
-  // Estado de la lista de pedidos
   const [pedidos, setPedidos] = useState([]);
 
-  // Función para agregar un plato al pedido
   const agregarPlato = (e) => {
     e.preventDefault();
-    
-    // Validación básica
     if (!mesero || !mesa || !plato) {
-      alert("Por favor completa el mesero, la mesa y selecciona un plato.");
+      alert("⚠️ Falta información básica.");
       return;
     }
 
-    // Buscar el plato seleccionado para obtener su precio
     const platoSeleccionado = MENU.find(item => item.id === parseInt(plato));
-
-    // Crear el nuevo objeto del pedido
     const nuevoPedido = {
-      id: Date.now(), // ID único temporal
+      id: Date.now(),
       mesero,
       mesa: parseInt(mesa),
       plato: platoSeleccionado.nombre,
@@ -45,135 +35,174 @@ export default function PedidoMesero() {
       notas
     };
 
-    // Agregar a la lista de pedidos
     setPedidos([...pedidos, nuevoPedido]);
-    
-    // Limpiar notas y selección de plato para el siguiente item
     setNotas("");
     setPlato("");
   };
 
-  // Función para enviar la orden a cocina (simulado)
-  const enviarACocina = () => {
-    if (pedidos.length === 0) {
-      alert("No hay platos en el pedido actual.");
-      return;
-    }
-    alert(`✅ Orden enviada a Cocina!\nMesa: ${pedidos[0].mesa}\nMesero: ${pedidos[0].mesero}\nTotal de platos: ${pedidos.length}`);
-    // Aquí iría una petición a un backend (fetch/axios)
-    setPedidos([]); // Limpiar la vista
+  const eliminarPlato = (id) => {
+    setPedidos(pedidos.filter(p => p.id !== id));
   };
 
-  // Calcular total
-  const calcularTotal = () => {
-    return pedidos.reduce((total, pedido) => total + pedido.precio, 0).toFixed(2);
+  const enviarACocina = () => {
+    if (pedidos.length === 0) return;
+    alert(` ¡Orden enviada a cocina!`);
+    setPedidos([]);
   };
+
+  const total = pedidos.reduce((sum, p) => sum + p.precio, 0).toFixed(2);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen font-sans">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">🍽️ Tomar Pedido</h1>
-
-      {/* FORMULARIO */}
-      <form onSubmit={agregarPlato} className="bg-white p-6 rounded-lg shadow-md mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Mesero</label>
-          <select 
-            value={mesero} 
-            onChange={(e) => setMesero(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Seleccionar mesero...</option>
-            {MESEROS.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Mesa</label>
-          <select 
-            value={mesa} 
-            onChange={(e) => setMesa(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Seleccionar mesa...</option>
-            {MESAS.map(m => <option key={m} value={m}>Mesa {m}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Plato</label>
-          <select 
-            value={plato} 
-            onChange={(e) => setPlato(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Seleccionar plato...</option>
-            {MENU.map(item => <option key={item.id} value={item.id}>{item.nombre} - ${item.precio}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notas (Ej: Sin cebolla)</label>
-          <input 
-            type="text" 
-            value={notas}
-            onChange={(e) => setNotas(e.target.value)}
-            placeholder="Especificaciones del cliente..."
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        <div className="md:col-span-2 flex justify-end">
-          <button 
-            type="submit" 
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition duration-200"
-          >
-            + Agregar al Pedido
-          </button>
-        </div>
-      </form>
-
-      {/* RESUMEN DEL PEDIDO */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <div className="flex justify-between items-center mb-4 border-b pb-2">
-          <h2 className="text-xl font-bold text-gray-800">
-            Pedido Actual: {mesa ? `Mesa ${mesa}` : "Sin mesa"}
-          </h2>
-          {pedidos.length > 0 && (
-            <button 
-              onClick={enviarACocina}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition duration-200"
-            >
-              🚀 Enviar a Cocina
-            </button>
-          )}
-        </div>
-
-        {pedidos.length === 0 ? (
-          <p className="text-gray-500 italic text-center py-4">No hay platos agregados aún.</p>
-        ) : (
-          <ul className="divide-y divide-gray-200">
-            {pedidos.map((pedido) => (
-              <li key={pedido.id} className="py-3 flex justify-between items-start">
-                <div>
-                  <p className="font-semibold text-gray-800">{pedido.plato}</p>
-                  {pedido.notas && (
-                    <p className="text-sm text-red-500 italic">📝 {pedido.notas}</p>
-                  )}
-                  <p className="text-xs text-gray-400 mt-1">Mesero: {pedido.mesero}</p>
-                </div>
-                <p className="font-bold text-gray-700">${pedido.precio.toFixed(2)}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {pedidos.length > 0 && (
-          <div className="mt-4 pt-4 border-t-2 border-gray-800 flex justify-between items-center">
-            <span className="text-lg font-bold">TOTAL:</span>
-            <span className="text-2xl font-bold text-green-600">${calcularTotal()}</span>
+    <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <header className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Restaurante <span className="text-orange-500">POS</span></h1>
+            <p className="text-slate-500">Gestión de pedidos en tiempo real</p>
           </div>
-        )}
+          <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
+            <span className="flex h-3 w-3 rounded-full bg-green-500 animate-pulse"></span>
+            <span className="text-sm font-medium text-slate-700">Sistema Activo</span>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Columna Izquierda: Formulario */}
+          <section className="lg:col-span-1">
+            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 p-6 border border-slate-100">
+              <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                 Nueva Entrada
+              </h2>
+              
+              <form onSubmit={agregarPlato} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold uppercase text-slate-400 mb-1 block px-1">Mesero</label>
+                    <select 
+                      value={mesero} 
+                      onChange={(e) => setMesero(e.target.value)}
+                      className="w-full bg-slate-50 border-none rounded-xl p-3 text-slate-700 focus:ring-2 focus:ring-orange-500 transition-all"
+                    >
+                      <option value="">Quien...</option>
+                      {MESEROS.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase text-slate-400 mb-1 block px-1">Mesa</label>
+                    <select 
+                      value={mesa} 
+                      onChange={(e) => setMesa(e.target.value)}
+                      className="w-full bg-slate-50 border-none rounded-xl p-3 text-slate-700 focus:ring-2 focus:ring-orange-500 transition-all"
+                    >
+                      <option value="">#</option>
+                      {MESAS.map(m => <option key={m} value={m}>Mesa {m}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-400 mb-1 block px-1">Seleccionar Plato</label>
+                  <select 
+                    value={plato} 
+                    onChange={(e) => setPlato(e.target.value)}
+                    className="w-full bg-slate-50 border-none rounded-xl p-3 text-slate-700 focus:ring-2 focus:ring-orange-500 transition-all"
+                  >
+                    <option value="">¿Qué desea el cliente?</option>
+                    {MENU.map(item => <option key={item.id} value={item.id}>{item.nombre} (${item.precio})</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-400 mb-1 block px-1">Notas Especiales</label>
+                  <textarea 
+                    rows="2"
+                    value={notas}
+                    onChange={(e) => setNotas(e.target.value)}
+                    placeholder="Ej. Sin sal, término medio..."
+                    className="w-full bg-slate-50 border-none rounded-xl p-3 text-slate-700 focus:ring-2 focus:ring-orange-500 transition-all resize-none"
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-orange-200 transition-all active:scale-95"
+                >
+                  Agregar a la Lista
+                </button>
+              </form>
+            </div>
+          </section>
+
+          {/* Columna Derecha: Resumen */}
+          <section className="lg:col-span-2">
+            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 flex flex-col h-full border border-slate-100 overflow-hidden">
+              <div className="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                <div>
+                  <h2 className="text-xl font-black text-slate-800">Detalle del Pedido</h2>
+                  <p className="text-sm text-slate-500">{mesa ? `Sirviendo a Mesa ${mesa}` : "Seleccione una mesa"}</p>
+                </div>
+                {pedidos.length > 0 && (
+                  <span className="bg-orange-100 text-orange-600 text-xs font-black px-3 py-1 rounded-full uppercase">
+                    {pedidos.length} Items
+                  </span>
+                )}
+              </div>
+
+              <div className="grow p-6 overflow-y-auto max-h-100">
+                {pedidos.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-slate-300 py-12">
+                    <span className="text-6xl mb-4">🛒</span>
+                    <p className="font-medium">El carrito está vacío</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {pedidos.map((p) => (
+                      <div key={p.id} className="group flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-transparent hover:border-orange-200 hover:bg-white transition-all">
+                        <div className="grow">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-slate-800">{p.plato}</h3>
+                            <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded">x1</span>
+                          </div>
+                          {p.notas && <p className="text-sm text-orange-600 mt-1 font-medium">✨ {p.notas}</p>}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="font-bold text-slate-900">${p.precio.toFixed(2)}</span>
+                          <button 
+                            onClick={() => eliminarPlato(p.id)}
+                            className="p-2 text-slate-300 hover:text-red-500 transition-colors"
+                            title="Quitar"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {pedidos.length > 0 && (
+                <div className="p-6 bg-slate-900 text-white">
+                  <div className="flex justify-between items-end mb-6">
+                    <div>
+                      <p className="text-slate-400 text-sm font-bold uppercase tracking-wider">Total a cobrar</p>
+                      <p className="text-4xl font-black text-white">${total}</p>
+                    </div>
+                    <button 
+                      onClick={enviarACocina}
+                      className="bg-green-500 hover:bg-green-400 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-green-900/20"
+                    >
+                       Enviar Orden
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+        </div>
       </div>
     </div>
   );
